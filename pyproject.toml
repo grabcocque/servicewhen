@@ -15,6 +15,9 @@ addopts = "--strict-markers --strict-config --cov=src --cov-fail-under=85 -ra"
 pythonpath = "src"
 testpaths = ["tests"]
 
+[tool.coverage.run]
+omit = ["src/main.py", "tests/"]
+
 [tool.ruff]
 target-version = "py312"
 

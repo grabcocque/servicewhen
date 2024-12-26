@@ -1,46 +1,60 @@
+import argparse
 import os
+import sys
 
 import pandas as pd
+from dotenv import load_dotenv
 from IPython.display import display
-from neo4j import GraphDatabase
+
+from db.neo4j_connection import Neo4jConnection, insert_sample_data
 
 
-class Neo4jConnection:
-    """A simple class to manage connections to a Neo4j database."""
+def parse_arguments() -> argparse.Namespace:
+    """Set up argument parser"""
+    parser = argparse.ArgumentParser(description="Neo4j database connection parameters")
+    parser.add_argument(
+        "--uri",
+        type=str,
+        help="URI for the Neo4j database",
+        default=os.getenv("NEO4J_URI"),
+    )
+    parser.add_argument(
+        "--user",
+        type=str,
+        help="Username for the Neo4j database",
+        default=os.getenv("NEO4J_USER"),
+    )
+    parser.add_argument(
+        "--password",
+        type=str,
+        help="Password for the Neo4j database",
+        default=os.getenv("NEO4J_PASSWORD"),
+    )
 
-    def __init__(self, uri, user, password):
-        self._driver = GraphDatabase.driver(uri, auth=(user, password))
-
-    def close(self):
-        """Close the connection to the database."""
-        self._driver.close()
-
-    def query(self, query, parameters=None):
-        """Execute a Cypher query and return the result."""
-        with self._driver.session() as session:
-            result = session.run(query, parameters)
-            return list(result)
+    # Parse arguments
+    args = parser.parse_args()
+    if not all([args.uri, args.user, args.password]):
+        parser.error("Missing required arguments")
+        sys.exit(parser.print_usage())
+    return args
 
 
 if __name__ == "__main__":
-    uri = os.getenv("NEO4J_URI", "bolt://localhost:7687")
-    user = os.getenv("NEO4J_USER", "neo4j")
-    password = os.getenv("NEO4J_PASSWORD", "password")
+    load_dotenv()
+    if not hasattr(__builtins__, "__IPYTHON__"):
+        args = parse_arguments()
+    else:
+        args = argparse.Namespace(
+            uri=os.getenv("NEO4J_URI"),
+            user=os.getenv("NEO4J_USER"),
+            password=os.getenv("NEO4J_PASSWORD"),
+        )
 
-    conn = Neo4jConnection(uri, user, password)
+    conn = Neo4jConnection(**vars(args))
 
     try:
-        # Delete all nodes and relationships in the database
-        conn.query("MATCH (n) DETACH DELETE n")
-        # Insert sample nodes and relationships
-        conn.query("""
-        CREATE (a:Person {name: 'Alice', age: 30})
-        CREATE (b:Person {name: 'Bob', age: 24})
-        CREATE (c:Person {name: 'Carol', age: 29})
-        CREATE (a)-[:FRIEND]->(b)
-        CREATE (b)-[:FRIEND]->(c)
-        CREATE (c)-[:FRIEND]->(a)
-        """)
+        # Insert sample data
+        insert_sample_data(conn)
 
         # Query to verify the inserted data
         result = conn.query("MATCH (n) RETURN n LIMIT 5")
@@ -49,4 +63,5 @@ if __name__ == "__main__":
         display(df)
 
     finally:
-        conn.close()
+        if not hasattr(__builtins__, "__IPYTHON__"):
+            conn.close()
