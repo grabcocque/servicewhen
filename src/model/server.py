@@ -1,4 +1,9 @@
-from neomodel import IntegerProperty, StringProperty, StructuredNode, UniqueIdProperty
+from neomodel import (
+    IntegerProperty,
+    StringProperty,
+    StructuredNode,
+    UniqueIdProperty,
+)
 
 
 class Server(StructuredNode):
@@ -10,7 +15,3 @@ class Server(StructuredNode):
     operating_system = StringProperty()
     cpu_cores = IntegerProperty()
     memory_gb = IntegerProperty()
-
-
-# Example usage:
-# server = Server(name="Server1", ip_address="192.168.1.1", operating_system="Linux", cpu_cores=4, memory_gb=16).save()

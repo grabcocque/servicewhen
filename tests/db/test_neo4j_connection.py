@@ -1,24 +1,24 @@
 import pandas as pd
 import pytest
 
-from db.neo4j_connection import insert_sample_data
+from db.utils import insert_sample_data
 
 
 @pytest.fixture(autouse=True)
-def sample_data(neo4j_connection):
+def sample_data(neomodel_db):
     """Fixture for inserting sample data into the database."""
-    insert_sample_data(neo4j_connection)
+    insert_sample_data(neomodel_db)
     yield
 
 
-def test_insert_sample_data(neo4j_connection):
+def test_insert_sample_data(neomodel_db):
     """
     Test the insert_sample_data function.
     """
     # Query to verify the inserted data
-    result = neo4j_connection.query("MATCH (n:Person) RETURN n")
+    result = neomodel_db.cypher_query("MATCH (n:Person) RETURN n")
     # Convert the result to a pandas DataFrame
-    df = pd.DataFrame([dict(record["n"]) for record in result])
+    df = pd.DataFrame([dict(record[0]) for record in result[0]])
 
     # Assert that the DataFrame is not empty
     assert not df.empty, "The DataFrame is empty, no data returned from Neo4j."
@@ -45,5 +45,5 @@ def test_insert_sample_data(neo4j_connection):
     ), "The 'name' column contains empty or non-string values."
 
     # Assert that the relationships are correctly created
-    result = neo4j_connection.query("MATCH (a)-[r:FRIEND]->(b) RETURN a, b")
-    assert len(result) == 3, f"Expected 3 relationships, but got {len(result)}."
+    result = neomodel_db.cypher_query("MATCH (a)-[r:FRIEND]->(b) RETURN a, b")
+    assert len(result[0]) == 3, f"Expected 3 relationships, but got {len(result[0])}."

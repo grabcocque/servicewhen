@@ -16,8 +16,11 @@ pythonpath = "src"
 testpaths = ["tests"]
 
 [tool.coverage.run]
-omit = ["src/main.py", "tests/"]
-
+omit = [
+    "tests/**/*.py",
+    "src/main.py",
+    "src/**/__init__.py",
+]
 [tool.ruff]
 target-version = "py312"
 

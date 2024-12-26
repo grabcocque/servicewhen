@@ -5,11 +5,12 @@ import sys
 import pandas as pd
 from dotenv import load_dotenv
 from IPython.display import display
+from neomodel import config, db
 
-from db.neo4j_connection import Neo4jConnection, insert_sample_data
+from db.utils import insert_sample_data
 
 
-def parse_arguments() -> argparse.Namespace:
+def parse_arguments():
     """Set up argument parser"""
     parser = argparse.ArgumentParser(description="Neo4j database connection parameters")
     parser.add_argument(
@@ -50,18 +51,18 @@ if __name__ == "__main__":
             password=os.getenv("NEO4J_PASSWORD"),
         )
 
-    conn = Neo4jConnection(**vars(args))
+    config.DATABASE_URL = f"bolt://{args.user}:{args.password}@{args.uri}"
 
     try:
         # Insert sample data
-        insert_sample_data(conn)
+        insert_sample_data(db)
 
         # Query to verify the inserted data
-        result = conn.query("MATCH (n) RETURN n LIMIT 5")
-        # Convert the result to a pandas DataFrame
-        df = pd.DataFrame([dict(record["n"]) for record in result])
+        result = db.cypher_query("MATCH (n) RETURN n LIMIT 5")
+        df = pd.DataFrame([dict(record[0]) for record in result[0]])
+
         display(df)
 
     finally:
         if not hasattr(__builtins__, "__IPYTHON__"):
-            conn.close()
+            db.close_connection()
