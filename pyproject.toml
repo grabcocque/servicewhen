@@ -11,7 +11,7 @@ dev = ["ipykernel>=6.29.5", "pytest-cov>=6.0.0", "pytest>=8.3.4", "ruff>=0.8.4"]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--strict-markers --strict-config --cov=src --cov-fail-under=85 -ra"
+addopts = "--strict-markers --strict-config --cov=src --cov-fail-under=85 -ra -v"
 pythonpath = "src"
 testpaths = ["tests"]
 
@@ -22,7 +22,7 @@ omit = ["src/main.py", "tests/"]
 target-version = "py312"
 
 [tool.ruff.lint]
-select = ["B", "C", "D101", "D102", "D103", "F", "I", "N", "PL", "S", "UP", "W"]
+select = ["B", "C", "D101", "D102", "D103", "F", "I", "N", "PLE", "PLW" , "PLC", "S", "UP", "W"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["S101"]
