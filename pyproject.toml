@@ -4,10 +4,24 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = ["neomodel>=5.4.2", "pandas>=2.2.3", "python-dotenv>=1.0.1"]
+dependencies = [
+    "fastapi>=0.115.6",
+    "neomodel>=5.4.2",
+    "pandas>=2.2.3",
+    "python-dotenv>=1.0.1",
+    "strawberry-graphql[debug-server]>=0.256.1",
+    "uvicorn[standard]>=0.34.0",
+]
 
 [dependency-groups]
-dev = ["ipykernel>=6.29.5", "pytest-cov>=6.0.0", "pytest>=8.3.4", "ruff>=0.8.4"]
+dev = [
+    "ipykernel>=6.29.5",
+    "pytest-cov>=6.0.0",
+    "pytest>=8.3.4",
+    "ruff>=0.8.4",
+    "pytest-mypy>=0.10.0",
+    "requests>=2.32.3",
+]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -29,3 +43,4 @@ select = ["B", "C", "D101", "D102", "D103", "F", "I", "N", "PLE", "PLW" , "PLC",
 
 [tool.ruff.lint.per-file-ignores]
 "tests/**/*.py" = ["S101"]
+

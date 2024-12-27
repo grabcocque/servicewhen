@@ -11,3 +11,4 @@ def insert_sample_data(db):
             CREATE (b)-[:FRIEND]->(c)
             CREATE (c)-[:FRIEND]->(a)
             """)
+

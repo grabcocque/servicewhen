@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from neomodel import config, db
 
 
-@pytest.fixture
+@pytest.fixture(scope="module")
 def neomodel_db():
     """Fixture for creating a Neo4j connection."""
     assert load_dotenv()
