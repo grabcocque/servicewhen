@@ -1,9 +1,8 @@
 import pandas as pd
 import pytest
-import requests
 import strawberry
-import uvicorn
 from fastapi import FastAPI
+from fastapi.testclient import TestClient
 from strawberry.fastapi import GraphQLRouter
 
 from db.utils import insert_sample_data
@@ -56,12 +55,10 @@ def app(schema):
 
 
 @pytest.fixture(scope="module")
-def test_app(app):
-    """Fixture for running the FastAPI app with Uvicorn."""
-    config = uvicorn.Config(app, host="127.0.0.1", port=8000, log_level="info", ws="websockets")
-    server = uvicorn.Server(config)
-    yield server
-    server.should_exit = True
+def client(app):
+    """Fixture for creating a TestClient."""
+    with TestClient(app) as client:
+        yield client
 
 
 def test_insert_sample_data(neomodel_db):
@@ -102,7 +99,7 @@ def test_insert_sample_data(neomodel_db):
     assert len(result[0]) == 3, f"Expected 3 relationships, but got {len(result[0])}."
 
 
-def test_graphql_endpoint(test_app):
+def test_graphql_endpoint(client):
     """
     Test the GraphQL endpoint for fetching people data.
     """
@@ -116,21 +113,8 @@ def test_graphql_endpoint(test_app):
     }
     """
 
-    # Start the server
-    import threading
-
-    server_thread = threading.Thread(target=test_app.run, daemon=True)
-    server_thread.start()
-
-    import time
-
-    # Give the server some time to start
-    time.sleep(2)
-
     # Send a request to the GraphQL endpoint
-    response = requests.post(
-        "http://127.0.0.1:8000/graphql", json={"query": query}, timeout=10
-    )
+    response = client.post("/graphql", json={"query": query})
 
     # Assert that the response status code is 200
     assert (

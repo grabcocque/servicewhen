@@ -21,11 +21,12 @@ dev = [
     "ruff>=0.8.4",
     "pytest-mypy>=0.10.0",
     "requests>=2.32.3",
+    "httpx>=0.28.1",
 ]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "--strict-markers --strict-config --cov=src --cov-fail-under=85 -ra -v"
+addopts = "--strict-markers --strict-config --cov=src --cov-fail-under=85 -ra"
 pythonpath = "src"
 testpaths = ["tests"]
 
